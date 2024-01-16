@@ -1,9 +1,12 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_is_empty, avoid_unnecessary_containers, must_call_super, unused_field, unused_local_variable, sized_box_for_whitespace
 import 'dart:io';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Controller/Provider/net_provider.dart';
+import '../util.dart';
 
 class MyWebView extends StatefulWidget {
   final String url;
@@ -17,11 +20,19 @@ class MyWebView extends StatefulWidget {
 class _MyWebViewState extends State<MyWebView> {
   InAppWebViewController? webViewController;
   PullToRefreshController? pullToRefreshController;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  late Connectivity _connectivity;
 
   @override
   void initState() {
-    super.initState();
-
+    _connectivity = Connectivity();
+    _checkConnection();
+    _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
+      _connectionStatus = result;
+      if (result == ConnectivityResult.none) {
+        _showConnectionLostBottomSheet();
+      }
+    });
     pullToRefreshController = PullToRefreshController(
       onRefresh: () async {
         if (Platform.isAndroid) {
@@ -33,6 +44,7 @@ class _MyWebViewState extends State<MyWebView> {
         }
       },
     );
+    getList();
   }
 
   @override
@@ -110,6 +122,41 @@ class _MyWebViewState extends State<MyWebView> {
                               ),
                             ),
                           ),
+                          Consumer<UrlProvider>(
+                            builder: (context, netProvider, child) {
+                              return (localLink.length == 0)
+                                  ? Center(
+                                      child: Text(
+                                        "No any bookmarks yet...",
+                                        style: TextStyle(fontSize: 20),
+                                      ),
+                                    )
+                                  : Expanded(
+                                      child: ListView.builder(
+                                        itemCount: localLink.length,
+                                        itemBuilder: (context, index) {
+                                          return ListTile(
+                                            title: Text(
+                                              localLink1[index],
+                                              maxLines: 1,
+                                            ),
+                                            subtitle: Text(localLink[index],
+                                                maxLines: 1),
+                                            trailing: IconButton(
+                                              onPressed: () {
+                                                Provider.of<UrlProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .removeBookmark(index);
+                                              },
+                                              icon: Icon(Icons.close),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                            },
+                          )
                         ],
                       ),
                     );
@@ -121,7 +168,7 @@ class _MyWebViewState extends State<MyWebView> {
                   title: Center(child: Text('Search Engine')),
                   actions: [
                     Consumer<UrlProvider>(
-                      builder: (BuildContext context, Uvalue, Widget? child) {
+                      builder: (BuildContext context, uvalue, Widget? child) {
                         return Container(
                           height: MediaQuery.sizeOf(context).height * 0.3,
                           width: MediaQuery.sizeOf(context).width * 0.6,
@@ -130,9 +177,9 @@ class _MyWebViewState extends State<MyWebView> {
                               RadioListTile(
                                 title: Text('Google'),
                                 value: 1,
-                                groupValue: Uvalue.selectedValue,
+                                groupValue: uvalue.selectedValue,
                                 onChanged: (value) {
-                                  Uvalue.radioChange(value!);
+                                  uvalue.radioChange(value!);
                                   Navigator.push(context, MaterialPageRoute(
                                     builder: (context) {
                                       return MyWebView(
@@ -144,9 +191,9 @@ class _MyWebViewState extends State<MyWebView> {
                               RadioListTile(
                                 title: Text('Yahoo'),
                                 value: 2,
-                                groupValue: Uvalue.selectedValue,
+                                groupValue: uvalue.selectedValue,
                                 onChanged: (value) {
-                                  Uvalue.radioChange(value!);
+                                  uvalue.radioChange(value!);
                                   Navigator.push(context, MaterialPageRoute(
                                     builder: (context) {
                                       return MyWebView(
@@ -158,9 +205,9 @@ class _MyWebViewState extends State<MyWebView> {
                               RadioListTile(
                                 title: Text('Bing'),
                                 value: 3,
-                                groupValue: Uvalue.selectedValue,
+                                groupValue: uvalue.selectedValue,
                                 onChanged: (value) {
-                                  Uvalue.radioChange(value!);
+                                  uvalue.radioChange(value!);
                                   Navigator.push(context, MaterialPageRoute(
                                     builder: (context) {
                                       return MyWebView(
@@ -172,9 +219,9 @@ class _MyWebViewState extends State<MyWebView> {
                               RadioListTile(
                                 title: Text('Duck Duck Go'),
                                 value: 4,
-                                groupValue: Uvalue.selectedValue,
+                                groupValue: uvalue.selectedValue,
                                 onChanged: (value) {
-                                  Uvalue.radioChange(value!);
+                                  uvalue.radioChange(value!);
                                   Navigator.push(context, MaterialPageRoute(
                                     builder: (context) {
                                       return MyWebView(
@@ -209,11 +256,30 @@ class _MyWebViewState extends State<MyWebView> {
                 return SizedBox.shrink();
               }
               return LinearProgressIndicator(
-                minHeight: 8,
+                minHeight: 4,
                 value: netProvider.progress,
-                color: Colors.yellow,
+                color: Colors.lightBlue,
               );
             },
+          ),
+          Container(
+            padding: EdgeInsets.all(8),
+            margin: EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                border:
+                    Border.all(style: BorderStyle.solid, color: Colors.grey)),
+            height: 40,
+            width: double.infinity,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Text(
+                Provider.of<UrlProvider>(context).currentUrl,
+                style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.blue,
+                    fontWeight: FontWeight.w500),
+              ),
+            ),
           ),
           Expanded(
             child: InAppWebView(
@@ -222,22 +288,13 @@ class _MyWebViewState extends State<MyWebView> {
                 webViewController = controller;
               },
               pullToRefreshController: pullToRefreshController,
-              onLoadStop: (controller, url) async {
-                var canGoBack = await controller.canGoBack();
-                var canGoForward = await controller.canGoForward();
-                print("mounted $mounted");
-
-                if (mounted) {
-                  Provider.of<UrlProvider>(context, listen: false)
-                      .backForwardStatus(canGoBack, canGoForward);
-                }
-
-                print("canGoBack $canGoBack");
+              onLoadStop: (controller, url) {
+                updatePageInfo(controller);
+                var d = Provider.of<UrlProvider>(context, listen: false);
               },
               onProgressChanged: (controller, progress) {
                 Provider.of<UrlProvider>(context, listen: false)
                     .changeProgress(progress / 100);
-                print("progress => $progress");
               },
             ),
           ),
@@ -255,26 +312,22 @@ class _MyWebViewState extends State<MyWebView> {
                   var searchText = "https://www.google.com/search?q=$value";
                   webViewController?.loadUrl(
                       urlRequest: URLRequest(url: WebUri(searchText)));
-                  print("Entered Text $value");
                 } else if (widget.url == "https://in.search.yahoo.com") {
                   //Yahoo
                   var searchText =
                       "https://in.search.yahoo.com/search?p=$value";
                   webViewController?.loadUrl(
                       urlRequest: URLRequest(url: WebUri(searchText)));
-                  print("Entered Text $value");
                 } else if (widget.url == "https://www.bing.com") {
                   //Bing
                   var searchText = "https://www.bing.com/?q=$value";
                   webViewController?.loadUrl(
                       urlRequest: URLRequest(url: WebUri(searchText)));
-                  print("Entered Text $value");
                 } else if (widget.url == "https://duckduckgo.com") {
                   //Duck Duck Go
                   var searchText = "https://duckduckgo.com/&q=$value";
                   webViewController?.loadUrl(
                       urlRequest: URLRequest(url: WebUri(searchText)));
-                  print("Entered Text $value");
                 }
               },
             ),
@@ -301,12 +354,21 @@ class _MyWebViewState extends State<MyWebView> {
                 Container(
                   child: IconButton(
                       onPressed: () async {
-                        webViewController?.loadUrl(
-                            urlRequest: URLRequest(
-                                url: await webViewController?.getUrl()));
-                        var link =
-                            URLRequest(url: await webViewController?.getUrl());
-                        print("link ==> $link");
+                        var a =
+                            Provider.of<UrlProvider>(context, listen: false);
+
+                        if (localLink.contains(a.currentUrl)) {
+                          showDuplicateBookmarkAdd(context);
+                        } else {
+                          showBookmarkAdd(context);
+                          localLink1.add(a.pageTitle);
+                          localLink.add(a.currentUrl);
+                        }
+
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        prefs.setStringList('link', localLink);
+                        prefs.setStringList('link1', localLink1);
                       },
                       icon: Icon(Icons.bookmark_add, size: 30)),
                 ),
@@ -350,6 +412,90 @@ class _MyWebViewState extends State<MyWebView> {
           }),
           SizedBox(height: 16),
         ],
+      ),
+    );
+  }
+
+  void getList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? storedLinks = prefs.getStringList('link');
+    List<String>? storedLinks1 = prefs.getStringList('link1');
+
+    if (storedLinks1 != null && storedLinks1.isNotEmpty) {
+      localLink1 = storedLinks1;
+    } else {}
+    if (storedLinks != null && storedLinks.isNotEmpty) {
+      localLink = storedLinks;
+    }
+  }
+
+  void updatePageInfo(InAppWebViewController controller) async {
+    var d = Provider.of<UrlProvider>(context, listen: false);
+    String? title = await controller.getTitle();
+    d.pageTitle = title ?? '';
+    var canGoBack = await controller.canGoBack();
+    var canGoForward = await controller.canGoForward();
+    d.currentUrl = (await controller.getUrl())?.toString() ?? '';
+    if (mounted) {
+      Provider.of<UrlProvider>(context, listen: false)
+          .backForwardStatus(canGoBack, canGoForward);
+    }
+  }
+
+  Future<void> _checkConnection() async {
+    ConnectivityResult result = await _connectivity.checkConnectivity();
+    setState(() {
+      _connectionStatus = result;
+    });
+
+    if (result == ConnectivityResult.none) {
+      _showConnectionLostBottomSheet();
+    }
+  }
+
+  void _showConnectionLostBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'No Internet Connection',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'Please check your internet connection',
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void showBookmarkAdd(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Center(child: Text('Added to Bookmark')),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void showDuplicateBookmarkAdd(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Center(child: Text('Already Added to Bookmark')),
+        duration: Duration(seconds: 2),
       ),
     );
   }

@@ -1,16 +1,16 @@
-// late SharedPreferences prefs;
-
 // ignore_for_file: prefer_const_constructors
 
+import 'package:browser/View/my_webview.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'Controller/Provider/net_provider.dart';
-import 'View/my_webview.dart';
+
+late SharedPreferences prefs;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // prefs = await SharedPreferences.getInstance();
+  prefs = await SharedPreferences.getInstance();
   runApp(MyApp());
 }
 
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
         title: "Hello",
-        home: MyWebView(url: "https://www.google.com/"),
+        home: MyWebView(url: "www.google.com"),
       ),
     );
   }
