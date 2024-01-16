@@ -21,17 +21,17 @@ Welcome to the Browser ! This Flutter-based application provides a seamless expe
 
 ## Screenshots
 
-<img src="https://github.com/yashpal4390/my_browser/assets/138545274/6a1009b3-0023-4a91-be30-9b6eaa14a04f" width="300" height="500">
+<img src="https://github.com/yashpal4390/my_browser/assets/138545274/6a1009b3-0023-4a91-be30-9b6eaa14a04f" width="300" height="600">
 
-<img src="https://github.com/yashpal4390/my_browser/assets/138545274/8a66b0dd-971c-4d05-95b9-b059cf1f7a86" width="300" height="500">
+<img src="https://github.com/yashpal4390/my_browser/assets/138545274/8a66b0dd-971c-4d05-95b9-b059cf1f7a86" width="300" height="600">
 
-<img src="https://github.com/yashpal4390/my_browser/assets/138545274/095fad54-1208-4b71-a7ee-51003845aa4e" width="300" height="500">
+<img src="https://github.com/yashpal4390/my_browser/assets/138545274/095fad54-1208-4b71-a7ee-51003845aa4e" width="300" height="600">
 
-<img src="https://github.com/yashpal4390/my_browser/assets/138545274/fa2ae5d7-3f10-4bed-a8db-fbe29e39a0a7" width="300" height="500">
+<img src="https://github.com/yashpal4390/my_browser/assets/138545274/fa2ae5d7-3f10-4bed-a8db-fbe29e39a0a7" width="300" height="600">
 
-<img src="https://github.com/yashpal4390/my_browser/assets/138545274/af01f1cc-b21c-42f9-a3a3-0d2311300c6d" width="300" height="500">
+<img src="https://github.com/yashpal4390/my_browser/assets/138545274/af01f1cc-b21c-42f9-a3a3-0d2311300c6d" width="300" height="600">
 
-<img src="https://github.com/yashpal4390/my_browser/assets/138545274/6cf8057e-414a-46f0-a3a1-a3dd3ba347ad" width="300" height="500">
+<img src="https://github.com/yashpal4390/my_browser/assets/138545274/6cf8057e-414a-46f0-a3a1-a3dd3ba347ad" width="300" height="600">
 ## Screenrecording
 
 -https://drive.google.com/file/d/1JMzxW1TApkxwUoLn0ucThZmxpUxpxUot/view?usp=drive_link
