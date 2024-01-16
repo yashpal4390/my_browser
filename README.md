@@ -17,7 +17,7 @@ Welcome to the Browser ! This Flutter-based application provides a seamless expe
 - **Dart Language:** The programming language used for Flutter app development.
 - **Flutter Framework:** Developed using Flutter with an MVC (Model-View-Controller) and Provider architecture.
 - **Local Storage:** Utilizes the shared_preferences package for efficient local data storage.
-- **Connectivity_Plus ** Check the device connection is mobiledata or wi-fi.
+- **Connectivity_Plus:** Check the device connection is mobiledata or wi-fi.
 
 ## Screenshots
 
