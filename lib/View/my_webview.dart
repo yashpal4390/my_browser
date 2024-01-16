@@ -20,19 +20,9 @@ class MyWebView extends StatefulWidget {
 class _MyWebViewState extends State<MyWebView> {
   InAppWebViewController? webViewController;
   PullToRefreshController? pullToRefreshController;
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  late Connectivity _connectivity;
 
   @override
   void initState() {
-    _connectivity = Connectivity();
-    _checkConnection();
-    _connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
-      _connectionStatus = result;
-      if (result == ConnectivityResult.none) {
-        _showConnectionLostBottomSheet();
-      }
-    });
     pullToRefreshController = PullToRefreshController(
       onRefresh: () async {
         if (Platform.isAndroid) {
@@ -248,6 +238,27 @@ class _MyWebViewState extends State<MyWebView> {
           ),
         ],
       ),
+      bottomNavigationBar:
+          Consumer<UrlProvider>(builder: (context, netProvider, val) {
+        netProvider.addNetListener();
+        if (!netProvider.isNet) {
+          return Container(
+            color: Colors.red,
+            width: double.infinity,
+            height: 40,
+            padding: EdgeInsets.all(8),
+            child: Center(
+              child: Text(
+                "No Connection..",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+        } else {
+          // Hide the message when internet connection is available
+          return SizedBox.shrink();
+        }
+      }),
       body: Column(
         children: [
           Consumer<UrlProvider>(
@@ -440,46 +451,6 @@ class _MyWebViewState extends State<MyWebView> {
       Provider.of<UrlProvider>(context, listen: false)
           .backForwardStatus(canGoBack, canGoForward);
     }
-  }
-
-  Future<void> _checkConnection() async {
-    ConnectivityResult result = await _connectivity.checkConnectivity();
-    setState(() {
-      _connectionStatus = result;
-    });
-
-    if (result == ConnectivityResult.none) {
-      _showConnectionLostBottomSheet();
-    }
-  }
-
-  void _showConnectionLostBottomSheet() {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'No Internet Connection',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.red,
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Please check your internet connection',
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 
   void showBookmarkAdd(BuildContext context) {

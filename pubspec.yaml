@@ -39,9 +39,6 @@ dependencies:
   flutter_inappwebview: ^6.0.0
   connectivity_plus: ^5.0.2
   shared_preferences: ^2.2.2
-  web_scraper: ^0.1.4
-  html: ^0.15.4
-  http: ^0.13.6
 
 
 dev_dependencies:

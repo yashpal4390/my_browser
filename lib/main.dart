@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         ),
         debugShowCheckedModeBanner: false,
         title: "Hello",
-        home: MyWebView(url: "www.google.com"),
+        home: MyWebView(url: "https://www.google.com"),
       ),
     );
   }

@@ -5,16 +5,32 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../util.dart';
 
 class UrlProvider extends ChangeNotifier {
-  bool isNet = false;
+  bool isNet = true;
   double progress = 0;
   bool canGoBack = false;
   bool canGoForward = false;
-
-  int? selectedValue=1;
+  int selectedValue = 1;
 
   String currentUrl = "";
-  String pageTitle = " ";
+  String pageTitle = "";
   ConnectivityResult connectivityResult = ConnectivityResult.none;
+
+  void addNetListener() {
+    Connectivity().onConnectivityChanged.listen((event) {
+      connectivityResult = event;
+      print(event);
+      // Notify listeners only when there's a change in connectivity status
+      if ((isNet && event == ConnectivityResult.none) ||
+          (!isNet && event != ConnectivityResult.none)) {
+        changeNetConnection(event != ConnectivityResult.none);
+        notifyListeners();
+      }
+    });
+  }
+
+  void changeNetConnection(bool isNet) {
+    this.isNet = isNet;
+  }
 
   void changeProgress(double progress) {
     this.progress = progress;
@@ -38,11 +54,6 @@ class UrlProvider extends ChangeNotifier {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setStringList('link', localLink);
     prefs.setStringList('link1', localLink1);
-    notifyListeners();
-  }
-
-  void changeNetConnection(bool isNet) {
-    this.isNet = isNet;
     notifyListeners();
   }
 }
