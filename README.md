@@ -1,4 +1,4 @@
-# browser
+# Browser
 
 ## Project Overview
 
